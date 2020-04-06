@@ -35,7 +35,7 @@ public class ArtistController {
 
         InsertOneResult result = collection.insertOne(doc);
         BsonValue insertedId = result.getInsertedId();
-        return insertedId != null ? insertedId.toString() : null;
+        return insertedId != null ? insertedId.asObjectId().getValue().toString() : null;
     }
 
     public Document findByName(String name) {

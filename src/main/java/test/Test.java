@@ -1,5 +1,6 @@
 package test;
 
+import db.Database;
 import model.AlbumController;
 import model.ArtistController;
 
@@ -22,5 +23,7 @@ public class Test {
 
         System.out.println(artists.findByName("Nothing but Thieves"));
         System.out.println(albums.findByArtist(artistId));
+
+        Database.getInstance().close();
     }
 }

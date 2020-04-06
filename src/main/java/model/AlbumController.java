@@ -43,7 +43,7 @@ public class AlbumController {
 
         InsertOneResult result = collection.insertOne(doc);
         BsonValue insertedId = result.getInsertedId();
-        return insertedId != null ? insertedId.toString() : null;
+        return insertedId != null ? insertedId.asObjectId().getValue().toString() : null;
     }
 
     public List<Document> findByArtist(String artistId) {
