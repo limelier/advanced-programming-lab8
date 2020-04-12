@@ -4,6 +4,9 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.result.InsertOneResult;
 import db.Database;
+import exceptions.NonExistentArtistException;
+import exceptions.SaveFailedError;
+import objects.Album;
 import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -15,7 +18,7 @@ import static com.mongodb.client.model.Filters.eq;
 
 public class AlbumController {
     private static AlbumController instance;
-    private MongoCollection<Document> collection;
+    private final MongoCollection<Document> collection;
 
     private AlbumController() {
         collection = Database
@@ -32,26 +35,37 @@ public class AlbumController {
         return instance;
     }
 
-    public String create(String name, String artistId, int releaseYear) {
-        if (!ArtistController.getInstance().exists(artistId)) {
-            throw new IllegalArgumentException("non-existent artist"); // todo: custom exception
+    public void save(Album album) throws NonExistentArtistException {
+        if (!ArtistController.getInstance().exists(album.getArtistId())) {
+            throw new NonExistentArtistException();
         }
 
-        Document doc = new Document("name", name)
-                .append("artist_id", new ObjectId(artistId))
-                .append("release_year", releaseYear);
+        Document doc = new Document("name", album.getName())
+                .append("artist_id", album.getArtistId())
+                .append("release_year", album.getReleaseYear());
 
         InsertOneResult result = collection.insertOne(doc);
         BsonValue insertedId = result.getInsertedId();
-        return insertedId != null ? insertedId.asObjectId().getValue().toString() : null;
+        if (insertedId != null) {
+            ObjectId id = insertedId.asObjectId().getValue();
+            album.setId(id);
+        } else {
+            throw new SaveFailedError();
+        }
     }
 
-    public List<Document> findByArtist(String artistId) {
-        FindIterable<Document> results = collection.find(eq("artist_id", new ObjectId(artistId)));
+    public List<Album> findByArtist(ObjectId artistId) {
+        FindIterable<Document> results = collection.find(eq("artist_id", artistId));
 
-        List<Document> resultList = new ArrayList<>();
+        List<Album> resultList = new ArrayList<>();
         for (Document result : results) {
-            resultList.add(result);
+            Album album = new Album(
+                    (ObjectId) result.get("artist_id"),
+                    (String) result.get("name"),
+                    (Integer) result.get("release_year")
+            );
+            album.setId((ObjectId) result.get("_id"));
+            resultList.add(album);
         }
         return resultList;
     }

@@ -8,8 +8,8 @@ import com.mongodb.client.MongoDatabase;
 public class Database {
     private static Database instance;
 
-    private MongoClient client;
-    private MongoDatabase database;
+    private final MongoClient client;
+    private final MongoDatabase database;
 
     private Database() {
         client = MongoClients.create("mongodb://dba:sql@localhost:27017");
