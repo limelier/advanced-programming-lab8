@@ -8,6 +8,7 @@ import db.Database;
 import exceptions.NonExistentArtistException;
 import exceptions.SaveFailedError;
 import objects.Album;
+import objects.Artist;
 import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -60,11 +61,7 @@ public class AlbumController {
 
         List<Album> resultList = new ArrayList<>();
         for (Document result : results) {
-            Album album = new Album(
-                    (ObjectId) result.get("artist_id"),
-                    (String) result.get("name"),
-                    (Integer) result.get("release_year")
-            );
+            Album album = new Album(result);
             album.setId((ObjectId) result.get("_id"));
             resultList.add(album);
         }
@@ -79,5 +76,13 @@ public class AlbumController {
         } catch (IllegalArgumentException err) {
             return false;
         }
+    }
+
+    public Album findById(ObjectId albumId) {
+        Document result = collection.find(eq("_id", albumId)).first();
+        if (result == null) {
+            return null;
+        }
+        return new Album(result);
     }
 }

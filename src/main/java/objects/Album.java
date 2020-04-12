@@ -1,5 +1,6 @@
 package objects;
 
+import org.bson.Document;
 import org.bson.types.ObjectId;
 
 public class Album extends DatabaseObject {
@@ -11,6 +12,19 @@ public class Album extends DatabaseObject {
         this.artistId = artistId;
         this.name = name;
         this.releaseYear = releaseYear;
+    }
+
+    /**
+     * Make an Album object from a database document. Uses unsafe casts - do not supply invalid documents.
+     * @param document the album document
+     */
+    public Album(Document document) {
+        this(
+                (ObjectId) document.get("artist_id"),
+                (String) document.get("name"),
+                (Integer) document.get("release_year")
+        );
+        setId((ObjectId) document.get("_id"));
     }
 
     public ObjectId getArtistId() {

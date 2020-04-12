@@ -50,12 +50,15 @@ public class ArtistController {
         if (result == null) {
             return null;
         }
-        Artist artist = new Artist(
-                (String) result.get("name"),
-                (String) result.get("country")
-        );
-        artist.setId((ObjectId) result.get("_id"));
-        return artist;
+        return new Artist(result);
+    }
+
+    public Artist findById(ObjectId artistId) {
+        Document result = collection.find(eq("_id", artistId)).first();
+        if (result == null) {
+            return null;
+        }
+        return new Artist(result);
     }
 
     boolean exists(ObjectId artistId) {

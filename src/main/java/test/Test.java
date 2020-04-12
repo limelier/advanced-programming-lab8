@@ -3,38 +3,40 @@ package test;
 import controllers.AlbumController;
 import controllers.ArtistController;
 import controllers.ChartController;
-import db.Database;
+import exceptions.NonExistentAlbumException;
+import exceptions.NonExistentArtistException;
+import exceptions.NotSavedException;
 import objects.Album;
 import objects.Artist;
 import objects.Chart;
+import org.bson.types.ObjectId;
+import util.ChartUtil;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Test {
     public static void main(String[] args) throws Exception {
-        ArtistController artists = ArtistController.getInstance();
-        AlbumController albums = AlbumController.getInstance();
-        ChartController charts = ChartController.getInstance();
+        createChartTest();
+        rankArtistsTest();
+    }
 
-        Artist artist1 = new Artist("Gorillaz", "England");
-        artists.save(artist1);
-        Artist artist2 = new Artist("Nothing but Thieves", "England");
-        artists.save(artist2);
-        Artist artist3 = new Artist("Remo Palmier", "USA");
-        artists.save(artist3);
+    public static void createChartTest() throws NotSavedException, NonExistentArtistException, NonExistentAlbumException {
+        List<ObjectId> albumList = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Artist artist = new Artist("Maroon " + i, "England");
+            ArtistController.getInstance().save(artist);
+            Album album = new Album(artist.getId(), "Mambo No. " + i, 2000 + i);
+            AlbumController.getInstance().save(album);
+            albumList.add(album.getId());
+        }
+        Chart chart = new Chart("Top 10 Mambos", albumList);
+        ChartController.getInstance().save(chart);
+    }
 
-        Album album1 = new Album(artist1.getId(), "Demon Days", 2005);
-        Album album2 = new Album(artist2.getId(), "Broken Machine", 2017);
-        Album album3 = new Album(artist3.getId(), "Windflower", 1978);
-        albums.save(album1);
-        albums.save(album2);
-        albums.save(album3);
-
-        Chart chart = new Chart("Random top hits", Arrays.asList(album1.getId(), album2.getId(), album3.getId()));
-        charts.save(chart);
-
-        System.out.println(chart);
-
-        Database.getInstance().close();
+    public static void rankArtistsTest() {
+        Chart chart = ChartController.getInstance().getByName("Top 10 Mambos");
+        List<Artist> topArtists = ChartUtil.getTop(chart);
+        System.out.println("Fifth place: " + topArtists.get(5));
     }
 }

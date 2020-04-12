@@ -5,10 +5,16 @@ import com.mongodb.client.result.InsertOneResult;
 import db.Database;
 import exceptions.NonExistentAlbumException;
 import exceptions.SaveFailedError;
+import objects.Album;
 import objects.Chart;
 import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.mongodb.client.model.Filters.eq;
 
 public class ChartController {
     private static ChartController instance;
@@ -48,5 +54,22 @@ public class ChartController {
         } else {
             throw new SaveFailedError();
         }
+    }
+
+    public List<Album> getAlbums(Chart chart) {
+        AlbumController albumController = AlbumController.getInstance();
+        List<Album> albumList = new ArrayList<>();
+        for (ObjectId albumId : chart.getAlbumIds()) {
+            albumList.add(albumController.findById(albumId));
+        }
+        return albumList;
+    }
+
+    public Chart getByName(String name) {
+        Document result = collection.find(eq("name", name)).first();
+        if (result == null) {
+            return null;
+        }
+        return new Chart(result);
     }
 }
