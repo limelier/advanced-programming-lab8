@@ -4,7 +4,7 @@ import org.bson.types.ObjectId;
 
 import java.util.List;
 
-public class Chart {
+public class Chart extends DatabaseObject {
     private final String name;
     private final List<ObjectId> albumIds;
 
@@ -19,5 +19,14 @@ public class Chart {
 
     public List<ObjectId> getAlbumIds() {
         return albumIds;
+    }
+
+    @Override
+    public String toString() {
+        return "Chart{" +
+                "id='" + getIdString() + '\'' +
+                ", name='" + name + '\'' +
+                ", albumIds=" + albumIds +
+                '}';
     }
 }

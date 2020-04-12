@@ -1,44 +1,39 @@
 package test;
 
+import controllers.AlbumController;
+import controllers.ArtistController;
+import controllers.ChartController;
 import db.Database;
-import exceptions.NonExistentArtistException;
-import exceptions.NotSavedException;
-import model.AlbumController;
-import model.ArtistController;
 import objects.Album;
 import objects.Artist;
+import objects.Chart;
+
+import java.util.Arrays;
 
 public class Test {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         ArtistController artists = ArtistController.getInstance();
         AlbumController albums = AlbumController.getInstance();
+        ChartController charts = ChartController.getInstance();
 
-        Artist artist = new Artist("Nothing but Thieves", "England");
-        Album album;
+        Artist artist1 = new Artist("Gorillaz", "England");
+        artists.save(artist1);
+        Artist artist2 = new Artist("Nothing but Thieves", "England");
+        artists.save(artist2);
+        Artist artist3 = new Artist("Remo Palmier", "USA");
+        artists.save(artist3);
 
-        try {
-            album = new Album(artist.getId(), "Broken Machine", 2017);
-        } catch (NotSavedException e) {
-            System.out.println("Can't make an album for an artist that's not saved yet...");
-        }
+        Album album1 = new Album(artist1.getId(), "Demon Days", 2005);
+        Album album2 = new Album(artist2.getId(), "Broken Machine", 2017);
+        Album album3 = new Album(artist3.getId(), "Windflower", 1978);
+        albums.save(album1);
+        albums.save(album2);
+        albums.save(album3);
 
-        artists.save(artist);
-        try {
-            album = new Album(artist.getId(), "Broken Machine", 2017);
-            albums.save(album);
-        } catch (NotSavedException e) {
-            System.out.println("Somehow, you got here and the artist still wasn't saved?");
-        } catch (NonExistentArtistException e) {
-            System.out.println("Somehow, the artist was no longer in the database with the ID we had.");
-        }
+        Chart chart = new Chart("Random top hits", Arrays.asList(album1.getId(), album2.getId(), album3.getId()));
+        charts.save(chart);
 
-
-        System.out.println(artists.findByName("Nothing but Thieves"));
-        try {
-            System.out.println(albums.findByArtist(artist.getId()));
-        } catch (NotSavedException e) {
-            System.out.println("Artist we tried to search by isn't saved yet.");
-        }
+        System.out.println(chart);
 
         Database.getInstance().close();
     }

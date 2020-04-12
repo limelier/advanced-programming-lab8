@@ -1,4 +1,4 @@
-package model;
+package controllers;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.CountOptions;

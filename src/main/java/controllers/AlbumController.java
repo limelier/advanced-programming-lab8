@@ -1,7 +1,8 @@
-package model;
+package controllers;
 
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.CountOptions;
 import com.mongodb.client.result.InsertOneResult;
 import db.Database;
 import exceptions.NonExistentArtistException;
@@ -68,5 +69,15 @@ public class AlbumController {
             resultList.add(album);
         }
         return resultList;
+    }
+
+    boolean exists(ObjectId albumId) {
+        CountOptions options = new CountOptions();
+        options.limit(1);
+        try {
+            return (collection.countDocuments(eq("_id", albumId), options) > 0);
+        } catch (IllegalArgumentException err) {
+            return false;
+        }
     }
 }
